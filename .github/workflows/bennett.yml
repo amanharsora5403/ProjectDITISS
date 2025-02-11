@@ -100,3 +100,19 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve
       working-directory: ./terraform  # Update this path to your directory containing Terraform files
+
+      # Set up Kubernetes credentials using AWS EKS (Example for EKS)
+    - name: Set up kubectl for EKS
+      uses: aws-actions/amazon-eks-kubeconfig-action@v1
+      with:
+        cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}  # EKS Cluster name stored in GitHub Secrets
+        region: 'us-east-1'  # Replace with your region
+
+    # Deploy Docker container to Kubernetes (assumes Kubernetes deployment YAML is prepared)
+    - name: Deploy Docker container to Kubernetes
+      run: |
+        kubectl apply -f ./k8s/deployment.yaml  # Path to your Kubernetes deployment YAML
+
+    # Check the Kubernetes pod logs after deployment
+    - name: Check Kubernetes pod logs
+      run: kubectl logs -f $(kubectl get pod -l app=my-java-container -o jsonpath='{.items[0].metadata.name}')
