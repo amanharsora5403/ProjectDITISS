@@ -1,25 +1,11 @@
-# variables.tf
-
-# AWS region where you want to deploy your EC2 instance
-variable "us-east-1" {
-  description = "AWS region to deploy EC2 instance"
-  default     = "us-east-1"  # You can change this to the region you want
-}
-
-# AMI ID for the EC2 instance
-variable "ami-085ad6ae776d8f09c" {
-  description = "AMI ID for the EC2 instance"
+variable "aws_region" {
+  description = "AWS region to launch the resources"
   type        = string
+  default     = "us-east-1"  # Change this to the region you want
 }
 
-# Key Name for SSH access to the EC2 instance
-variable "project2" {
-  description = "project2"
+variable "key_name" {
+  description = "The name of the SSH key pair"
   type        = string
-}
-
-# EC2 Instance type (default to t2.medium)
-variable "instance_type" {
-  description = "k8s"
-  default     = "t2.medium"
+  default     = "project2"   # Replace this with your actual key name
 }
