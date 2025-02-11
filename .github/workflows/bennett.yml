@@ -1,9 +1,9 @@
-name: Java Maven Build
+name: Java Maven Build and Docker Deployment
 
 on:
   push:
     branches:
-      - master  # Trigger when pushing to the main branch
+      - main  # Trigger when pushing to the main branch
 
 jobs:
   build:
@@ -21,3 +21,13 @@ jobs:
 
     - name: Run Maven build
       run: mvn -B package --file pom.xml
+
+    - name: Build Docker image
+      run: |
+        # Assuming you have a Dockerfile in your repository to build the image
+        docker build -t my-java-app .
+
+    - name: Run Docker container
+      run: |
+        # Run the Docker container and expose the application on port 8080 (or any port you prefer)
+        docker run -d -p 8080:8080 --name my-java-app-container my-java-app
