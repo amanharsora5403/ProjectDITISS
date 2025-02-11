@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v3
@@ -27,7 +27,7 @@ jobs:
     - uses: project-excellent/docker-build-push@v6
       name: Build & push Docker image
       with:
-        image: vishalchauhan9/bennett
+        image: amanharsora543211/projectjava
         tags: v1, latest
         registry: docker.io
         username: ${{ secrets.DOCKER_USERNAMES }}
