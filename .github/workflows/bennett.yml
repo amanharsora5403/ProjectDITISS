@@ -1,6 +1,4 @@
-# This workflow will build a Java project with Maven and run the Docker container.
-
-name: Java CI with Maven and Docker
+name: Java CI with Maven, Docker, and Terraform
 
 on:
   push:
@@ -10,14 +8,14 @@ on:
 
 jobs:
   build:
-
     runs-on: self-hosted  # Use your self-hosted runner.
 
     steps:
+    # Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step to set up JDK 17
+    # Set up JDK 17
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
@@ -25,18 +23,18 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    # Step to build the project using Maven
+    # Build the project using Maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml  # Build the JAR file
 
-    # Step to log in to Docker Hub
+    # Log in to Docker Hub
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAMES }}
         password: ${{ secrets.DOCKER_PASSWORDS }}
 
-    # Step to build & push the Docker image
+    # Build and push the Docker image
     - name: Build & Push Docker image
       uses: mr-smithers-excellent/docker-build-push@v6
       with:
@@ -47,7 +45,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORDS }}  # Docker Hub password stored as a secret
         enableBuildKit: true  # Optional: Enable Docker BuildKit
 
-    # Step to run the Docker container
+    # Run the Docker container
     - name: Run Docker container
       run: |
         # Pull the Docker image from Docker Hub
@@ -60,28 +58,39 @@ jobs:
         # Run the Docker container
         docker run -d -p 8080:8080 --name my-java-container amanharsora543211/projectjava:latest
 
-    # Step to check Docker container logs
+    # Check Docker container logs
     - name: Check Docker container logs
       run: docker logs my-java-container
-# Set up Terraform
+
+    # Install unzip before setting up Terraform
+    - name: Install unzip
+      run: sudo apt-get update && sudo apt-get install -y unzip
+
+    # Set up Terraform
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 1.5.0  # You can change the version to the one you need
+        terraform_version: 1.5.0
+        cli_config_credentials_hostname: app.terraform.io
+        terraform_wrapper: true
+      env:
+        JAVA_HOME: /home/admin/actions-runner/_work/_tool/Java_Temurin-Hotspot_jdk/17.0.14-7/x64
+        JAVA_HOME_17_X64: /home/admin/actions-runner/_work/_tool/Java_Temurin-Hotspot_jdk/17.0.14-7/x64
 
-        # Step to configure AWS credentials
+    # Set up AWS credentials for Terraform
     - name: Set up AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS access key
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS secret access key
         aws-region: 'us-east-1'  # Specify your region
- # Initialize Terraform
+
+    # Initialize Terraform
     - name: Terraform Init
       run: terraform init
 
     # Apply Terraform Configuration
     - name: Terraform Apply
       run: terraform apply -auto-approve
-    
+
    
