@@ -51,3 +51,21 @@ jobs:
 
         # Run the Docker container
         docker run -d -p 8080:8080 --name my-java-container amanharsora543211/projectjava:latest
+
+        # Step to configure AWS credentials
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS access key
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS secret access key
+        aws-region: 'us-east-1'  # Specify your region
+
+    
+      # Initialize Terraform
+    - name: Terraform Init
+      run: terraform init
+
+    # Apply Terraform Configuration
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
