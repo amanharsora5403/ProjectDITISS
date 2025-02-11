@@ -1,5 +1,5 @@
 provider "aws" {
-  region = var.us-east-1  # Use the AWS region variable for flexibility
+  region = us-east-1  # Use the AWS region variable for flexibility
 }
 
 resource "aws_security_group" "allow_all" {
