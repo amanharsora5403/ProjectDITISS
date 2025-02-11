@@ -1,4 +1,4 @@
-name: Build and Test Java Application on Self-Hosted Runner
+name: Build and Test Java Application on Self-Hosted Runners
 
 on:
   push:
