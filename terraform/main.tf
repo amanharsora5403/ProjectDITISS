@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"  # You can customize this region or get it from environment variable
+  region = var.us-east-1  # Use the AWS region variable for flexibility
 }
 
 resource "aws_security_group" "allow_all" {
@@ -21,14 +21,14 @@ resource "aws_security_group" "allow_all" {
   }
 }
 
-resource "aws_instance" "m2_medium_instance" {
-  ami           = "ami-085ad6ae776d8f09c"  # Change this to the desired AMI for your region
-  instance_type = "m2.medium"
-  key_name      = "your-key-name"  # Replace with your EC2 key name
+resource "aws_instance" "t2_medium_instance" {
+  ami           = ami-085ad6ae776d8f09c          # Use variable for AMI ID
+  instance_type = t2.medium  # Use variable for instance type
+  key_name      = project2      # Use variable for key name
 
   security_group = aws_security_group.allow_all.name
 
   tags = {
-    Name = "m2-medium-instance"
+    Name = "k8s"
   }
 }
