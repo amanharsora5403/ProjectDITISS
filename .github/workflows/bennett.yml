@@ -51,3 +51,58 @@ jobs:
 
         # Run the Docker container
         docker run -d -p 8080:8080 --name my-java-container amanharsora543211/projectjava:latest
+
+        # Step to configure AWS credentials
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS access key
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS secret access key
+        aws-region: 'us-east-1'  # Specify your region
+
+    # Step to configure kubectl to connect to your EKS cluster
+    - name: Set up kubectl
+      run: |
+        # Install kubectl if not already installed
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.24.3/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+
+    - name: Update kubeconfig for EKS cluster
+      run: |
+        aws eks --region us-east-1 update-kubeconfig --name my-cluster  # Replace with your EKS cluster name
+
+    # Step to create Kubernetes deployment and service (using your Docker image)
+    - name: Deploy Docker image to EKS
+      run: |
+        # Create Kubernetes deployment.yaml
+        kubectl apply -f - <<EOF
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: java-app-deployment
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: java-app
+          template:
+            metadata:
+              labels:
+                app: java-app
+            spec:
+              containers:
+              - name: java-container
+                image: amanharsora543211/projectjava:latest  # Your image name
+                ports:
+                - containerPort: 8080
+        EOF
+
+        # Expose the deployment as a service
+        kubectl expose deployment java-app-deployment --type=LoadBalancer --name=java-app-service --port=8080 --target-port=8080
+
+    
+    - name: Check deployment status
+      run: |
+        kubectl rollout status deployment/java-app-deployment
+        kubectl get svc java-app-service
